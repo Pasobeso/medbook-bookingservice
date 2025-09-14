@@ -1,10 +1,11 @@
 use anyhow::Result;
 use chrono::NaiveDateTime;
-use diesel::{dsl::exists, query_dsl::methods::{FilterDsl, SelectDsl}, select, ExpressionMethods};
+use diesel::{dsl::exists, prelude::*, select};
+
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
 use uuid::Uuid;
 
-use crate::infrastructure::postgres::schema::slots;
+use crate::{domain::entities::slots::SlotEntity, infrastructure::postgres::schema::slots};
 
 pub struct SlotViewingDao;
 
@@ -36,13 +37,12 @@ impl SlotViewingDao {
         let result = slots::table
             .filter(slots::deleted_at.is_null())
             .filter(slots::id.eq(slot_id))
-            .select(slots::current_appointment_count)   
-            .first::<i32>(conn)                        
+            .select(slots::current_appointment_count)
+            .first::<i32>(conn)
             .await?;
 
         Ok(result)
     }
-
 
     pub async fn get_end_time_by_slot_id(
         conn: &mut AsyncPgConnection,
@@ -51,8 +51,30 @@ impl SlotViewingDao {
         let result = slots::table
             .filter(slots::deleted_at.is_null())
             .filter(slots::id.eq(slot_id))
-            .select(slots::end_time)   
-            .first::<NaiveDateTime>(conn)                        
+            .select(slots::end_time)
+            .first::<NaiveDateTime>(conn)
+            .await?;
+
+        Ok(result)
+    }
+
+    pub async fn get_slots(conn: &mut AsyncPgConnection) -> Result<Vec<SlotEntity>> {
+        let result = slots::table
+            .filter(slots::deleted_at.is_null())
+            .load::<SlotEntity>(conn)
+            .await?;
+
+        Ok(result)
+    }
+
+    pub async fn get_doctor_slots(
+        conn: &mut AsyncPgConnection,
+        doctor_id: i32,
+    ) -> Result<Vec<SlotEntity>> {
+        let result = slots::table
+            .filter(slots::deleted_at.is_null())
+            .filter(slots::doctor_id.eq(doctor_id))
+            .load::<SlotEntity>(conn)
             .await?;
 
         Ok(result)

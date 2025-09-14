@@ -1,5 +1,6 @@
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
+use serde::Serialize;
 use uuid::Uuid;
 
 use crate::infrastructure::postgres::schema::appointments;
@@ -18,4 +19,22 @@ pub struct AddAppointmentEntity {
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     pub deleted_at: Option<NaiveDateTime>,
+}
+
+#[derive(Debug, Clone, Queryable, AsChangeset)]
+#[diesel(table_name = appointments)]
+pub struct EditAppointmentEntity {
+    pub patient_abnormal_symptom: Option<String>,
+    pub patient_is_missed_medication: Option<String>,
+    pub patient_blood_test_status: Option<String>,
+    pub patient_is_overdue_medication: Option<String>,
+    pub patient_is_partner_hiv_positive: Option<String>,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Clone, Queryable, AsChangeset)]
+#[diesel(table_name = appointments)]
+pub struct RescheduleAppointmentEntity {
+    pub slot_id: Uuid,
+    pub updated_at: NaiveDateTime,
 }

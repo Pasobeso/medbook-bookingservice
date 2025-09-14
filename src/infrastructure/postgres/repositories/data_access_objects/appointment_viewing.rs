@@ -1,6 +1,5 @@
 use anyhow::Result;
-use chrono::NaiveDateTime;
-use diesel::{dsl::exists, query_dsl::methods::{FilterDsl, SelectDsl}, select, ExpressionMethods};
+use diesel::prelude::*;
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
 use uuid::Uuid;
 
@@ -9,6 +8,7 @@ use crate::infrastructure::postgres::schema::appointments;
 pub struct AppointmentViewingDao;
 
 impl AppointmentViewingDao {
+
     pub async fn get_slot_id_by_appointment_id(
         conn: &mut AsyncPgConnection,
         appointment_id: Uuid,

@@ -4,7 +4,7 @@ use anyhow::Result;
 use uuid::Uuid;
 
 use crate::domain::{
-    repositories::{appointment_ops::AppointmentOpsRepository}, value_objects::{appointment_model::AddAppointmentDto},
+    entities::appointments::RescheduleAppointmentEntity, repositories::appointment_ops::AppointmentOpsRepository, value_objects::appointment_model::{AddAppointmentDto, EditAppointmentDto}
 };
 
 pub struct AppointmentOpsUseCase<T>
@@ -30,6 +30,22 @@ where
 
         let appointment_id = self.appointment_ops_repository.add(add_appointment_entity).await?;
         Ok(appointment_id)
+    }
+
+    pub async fn edit(&self, appointment_id: Uuid, patient_id :i32, edit_appointment_dto: EditAppointmentDto) -> Result<()> {
+        let current_time = chrono::Utc::now().naive_utc();
+        if let Some(new_slot_id) = edit_appointment_dto.slot_id {
+            let reschedule_appointment_entity = RescheduleAppointmentEntity {
+                slot_id: new_slot_id,
+                updated_at: current_time
+            };
+            self.appointment_ops_repository.reschedule(appointment_id, patient_id, reschedule_appointment_entity).await?;
+        }
+
+        let edit_appointment_entity = edit_appointment_dto.to_entity(current_time);
+        self.appointment_ops_repository.edit(appointment_id, patient_id, edit_appointment_entity).await?;
+
+        Ok(())
     }
 
     pub async fn remove(&self, appointment_id: Uuid, patient_id: i32) -> Result<()> {

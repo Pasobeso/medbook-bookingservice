@@ -1,10 +1,11 @@
-use anyhow::{anyhow, Result};
-use diesel::sql_types::{Uuid as SqlUuid};
-use diesel::dsl::insert_into;
+use anyhow::{Result, anyhow};
 use diesel::ExpressionMethods;
+use diesel::dsl::insert_into;
+use diesel::sql_types::Uuid as SqlUuid;
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
 use uuid::Uuid;
 
+use crate::domain::entities::appointments::{EditAppointmentEntity, RescheduleAppointmentEntity};
 use crate::domain::value_objects::appointment_status::AppointmentStatus;
 use crate::{
     domain::entities::appointments::AddAppointmentEntity,
@@ -14,10 +15,7 @@ use crate::{
 pub struct AppointmentOpsDao;
 
 impl AppointmentOpsDao {
-    pub async fn lock(
-        conn: &mut AsyncPgConnection,
-        appointment_id: Uuid,
-    ) -> Result<()> {
+    pub async fn lock(conn: &mut AsyncPgConnection, appointment_id: Uuid) -> Result<()> {
         let n = diesel::sql_query(
             r#"
             SELECT 1
@@ -50,16 +48,59 @@ impl AppointmentOpsDao {
         Ok(result)
     }
 
-    pub async fn remove(conn: &mut AsyncPgConnection, appointment_id: Uuid, patient_id: i32) -> Result<()> {
+    pub async fn edit(
+        conn: &mut AsyncPgConnection,
+        appointment_id: Uuid,
+        patient_id: i32,
+        edit_appointment_entity: EditAppointmentEntity,
+    ) -> Result<Uuid> {
+
+        let result = diesel::update(appointments::table)
+            .filter(appointments::id.eq(appointment_id))
+            .filter(appointments::patient_id.eq(patient_id))
+            .filter(appointments::deleted_at.is_null())
+            .filter(appointments::status.eq(AppointmentStatus::Waiting.to_string()))
+            .set(edit_appointment_entity)
+            .returning(appointments::id)
+            .get_result::<Uuid>(conn)
+            .await?;
+
+        Ok(result)
+    }
+
+    pub async fn reschedule(
+        conn: &mut AsyncPgConnection,
+        appointment_id: Uuid,
+        patient_id: i32,
+        reschedule_appointment_entity: RescheduleAppointmentEntity,
+    ) -> Result<Uuid> {
+
+        let result = diesel::update(appointments::table)
+            .filter(appointments::id.eq(appointment_id))
+            .filter(appointments::patient_id.eq(patient_id))
+            .filter(appointments::deleted_at.is_null())
+            .filter(appointments::status.eq(AppointmentStatus::Waiting.to_string()))
+            .set(reschedule_appointment_entity)
+            .returning(appointments::id)
+            .get_result::<Uuid>(conn)
+            .await?;
+
+        Ok(result)
+    }
+
+    pub async fn remove(
+        conn: &mut AsyncPgConnection,
+        appointment_id: Uuid,
+        patient_id: i32,
+    ) -> Result<()> {
         diesel::update(appointments::table)
-        .filter(appointments::id.eq(appointment_id))
-        .filter(appointments::patient_id.eq(patient_id))
-        .filter(appointments::deleted_at.is_null())
-        .filter(appointments::status.eq(AppointmentStatus::Waiting.to_string()))
-        .set((
-            appointments::deleted_at.eq(chrono::Utc::now().naive_utc()),
-        ))
-        .execute(conn).await?;
+            .filter(appointments::id.eq(appointment_id))
+            .filter(appointments::patient_id.eq(patient_id))
+            .filter(appointments::deleted_at.is_null())
+            .filter(appointments::status.eq(AppointmentStatus::Waiting.to_string()))
+            .set((appointments::deleted_at.eq(chrono::Utc::now().naive_utc()),))
+            .execute(conn)
+            .await?;
 
         Ok(())
     }
