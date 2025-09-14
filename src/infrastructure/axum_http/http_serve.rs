@@ -21,7 +21,8 @@ use super::default_routers;
 pub async fn start(config: Arc<DotEnvyConfig>, db_pool: Arc<PgPoolSquad>) -> Result<()> {
     let app = Router::new()
         .fallback(default_routers::not_found)
-        .nest("/slot-ops", routers::slot_ops::routes(Arc::clone(&db_pool)))
+        .nest("/slots-ops", routers::slot_ops::routes(Arc::clone(&db_pool)))
+        .nest("/appointments-ops", routers::appointment_ops::routes(Arc::clone(&db_pool)))
         .route("/health-check", get(default_routers::health_check))
         .layer(TimeoutLayer::new(Duration::from_secs(
             config.server.timeout,

@@ -57,7 +57,7 @@ impl SlotOpsRepository for SlotOpsPostgres {
         let mut conn = self.db_pool.get().await?;
         conn.transaction(|conn| {
             async move {
-                SlotOpsDao::lock(conn, slot_id, doctor_id).await?;
+                SlotOpsDao::lock(conn, slot_id).await?;
                 let appointment_count =
                     SlotViewingDao::get_current_appointment_count_by_slot_id(conn, slot_id).await?;
                 if appointment_count > 0 {

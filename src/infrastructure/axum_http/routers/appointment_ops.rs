@@ -10,41 +10,31 @@ use axum::{
 };
 use uuid::Uuid;
 
-use crate::{
-    application::usecases::slot_ops::SlotOpsUseCase,
-    domain::{
-        repositories::slot_ops::SlotOpsRepository,
-        value_objects::slot_model::AddSlotDto,
-    },
-    infrastructure::{
-        axum_http::{api_response::{ApiResponse, EmptyResponseModel}, middleware::doctors_authorization},
-        postgres::{postgres_connection::PgPoolSquad, repositories::slot_ops::SlotOpsPostgres},
-    },
-};
+use crate::{application::usecases::appointment_ops::AppointmentOpsUseCase, domain::{repositories::appointment_ops::AppointmentOpsRepository, value_objects::appointment_model::AddAppointmentDto}, infrastructure::{axum_http::{api_response::{ApiResponse, EmptyResponseModel}, middleware::patients_authorization}, postgres::{postgres_connection::PgPoolSquad, repositories::appointment_ops::AppointmentOpsPostgres}}};
 
 pub fn routes(db_pool: Arc<PgPoolSquad>) -> Router {
-    let slot_ops_repository = SlotOpsPostgres::new(db_pool);
-    let slot_ops_use_case = SlotOpsUseCase::new(Arc::new(slot_ops_repository));
+    let appointment_ops_repository = AppointmentOpsPostgres::new(db_pool);
+    let appointment_ops_use_case = AppointmentOpsUseCase::new(Arc::new(appointment_ops_repository));
 
     Router::new()
         .route("/", post(add))
         // .route("/:quest_id", patch(edit))
-        .route("/:slot_id", delete(remove))
-        .route_layer(middleware::from_fn(doctors_authorization))
-        .with_state(Arc::new(slot_ops_use_case))
+        .route("/:appointment_id", delete(remove))
+        .route_layer(middleware::from_fn(patients_authorization))
+        .with_state(Arc::new(appointment_ops_use_case))
 }
 
 pub async fn add<T>(
-    State(slot_ops_use_case): State<Arc<SlotOpsUseCase<T>>>,
-    Extension(doctor_id): Extension<i32>,
-    Json(add_slot_dto): Json<AddSlotDto>,
+    State(appointment_ops_use_case): State<Arc<AppointmentOpsUseCase<T>>>,
+    Extension(patient_id): Extension<i32>,
+    Json(add_appointment_dto): Json<AddAppointmentDto>,
 ) -> impl IntoResponse
 where
-    T: SlotOpsRepository + Send + Sync,
+    T: AppointmentOpsRepository + Send + Sync,
 {
-    match slot_ops_use_case.add(add_slot_dto, doctor_id).await {
-        Ok(slot_id) => {
-            let response = format!("Add slot success with id: {}", slot_id);
+    match appointment_ops_use_case.add(add_appointment_dto, patient_id).await {
+        Ok(appointment_id) => {
+            let response = format!("Add appointment success with id: {}", appointment_id);
             (
                 StatusCode::OK,
                 Json(ApiResponse::<EmptyResponseModel> {
@@ -86,16 +76,16 @@ where
 // }
 
 pub async fn remove<T>(
-    State(slot_ops_use_case): State<Arc<SlotOpsUseCase<T>>>,
-    Extension(doctor_id): Extension<i32>,
-    Path(slot_id): Path<Uuid>,
+    State(appointment_ops_use_case): State<Arc<AppointmentOpsUseCase<T>>>,
+    Extension(patient_id): Extension<i32>,
+    Path(appointment_id): Path<Uuid>,
 ) -> impl IntoResponse
 where
-    T: SlotOpsRepository + Send + Sync,
+    T: AppointmentOpsRepository + Send + Sync,
 {
-    match slot_ops_use_case.remove(slot_id, doctor_id).await {
+    match appointment_ops_use_case.remove(appointment_id, patient_id).await {
         Ok(_) => {
-            let response = format!("Edit slot success with id: {}", slot_id);
+            let response = format!("Edit appointment success with id: {}", appointment_id);
             (
                 StatusCode::OK,
                 Json(ApiResponse::<EmptyResponseModel> {

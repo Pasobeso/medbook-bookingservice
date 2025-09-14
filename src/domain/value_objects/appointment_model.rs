@@ -7,7 +7,6 @@ use crate::domain::{entities::appointments::AddAppointmentEntity, value_objects:
 #[derive(Debug,Clone,Serialize,Deserialize)]
 pub struct AddAppointmentDto {
     pub slot_id: Uuid,
-    pub patient_id: i32,
     pub patient_abnormal_symptom: String,
     pub patient_is_missed_medication: String,
     pub patient_blood_test_status: String,
@@ -17,10 +16,10 @@ pub struct AddAppointmentDto {
 }
 
 impl AddAppointmentDto {
-    pub fn to_entity(&self, current_time: NaiveDateTime) -> AddAppointmentEntity {
+    pub fn to_entity(&self, patient_id: i32, current_time: NaiveDateTime) -> AddAppointmentEntity {
         AddAppointmentEntity {
             slot_id: self.slot_id,
-            patient_id: self.patient_id,
+            patient_id,
             patient_abnormal_symptom: self.patient_abnormal_symptom.clone(),
             patient_is_missed_medication: self.patient_is_missed_medication.clone(),
             patient_blood_test_status: self.patient_blood_test_status.clone(),

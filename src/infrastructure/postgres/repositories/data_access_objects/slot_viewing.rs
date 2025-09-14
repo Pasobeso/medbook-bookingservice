@@ -42,4 +42,19 @@ impl SlotViewingDao {
 
         Ok(result)
     }
+
+
+    pub async fn get_end_time_by_slot_id(
+        conn: &mut AsyncPgConnection,
+        slot_id: Uuid,
+    ) -> Result<NaiveDateTime> {
+        let result = slots::table
+            .filter(slots::deleted_at.is_null())
+            .filter(slots::id.eq(slot_id))
+            .select(slots::end_time)   
+            .first::<NaiveDateTime>(conn)                        
+            .await?;
+
+        Ok(result)
+    }
 }
