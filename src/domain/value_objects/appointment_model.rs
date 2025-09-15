@@ -12,7 +12,6 @@ pub struct AddAppointmentDto {
     pub patient_blood_test_status: String,
     pub patient_is_overdue_medication: String,
     pub patient_is_partner_hiv_positive: String,
-
 }
 
 impl AddAppointmentDto {
