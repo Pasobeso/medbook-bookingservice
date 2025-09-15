@@ -97,7 +97,7 @@ pub struct AddAppointmentDto {
 
 ## คนไข้ต้องการจะเลื่อนนัด / แก้ไขรายละเอียดการนัดหมาย  
 - **usecase** : edit appointment  
-- **Endpoint** : `PATCH /appointment-ops`
+- **Endpoint** : `PATCH /appointment-ops/:appointment_id`
 
 **Request**  
 ```rust
