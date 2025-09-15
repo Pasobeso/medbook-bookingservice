@@ -255,7 +255,7 @@ None
 ---
 
 ## หมอต้องการจะดู slot ของตัวเองว่าได้สร้าง slot ไหนไว้บ้าง  
-- **usecase** : get slots  
+- **usecase** : get doctor slots  
 - **Endpoint** : `GET /slot-view/view-my-slots`
 
 **Request**  
