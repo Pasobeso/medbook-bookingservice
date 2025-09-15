@@ -1,7 +1,6 @@
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 use diesel::ExpressionMethods;
 use diesel::dsl::insert_into;
-use diesel::sql_types::Uuid as SqlUuid;
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
 use uuid::Uuid;
 
@@ -15,25 +14,25 @@ use crate::{
 pub struct AppointmentOpsDao;
 
 impl AppointmentOpsDao {
-    pub async fn lock(conn: &mut AsyncPgConnection, appointment_id: Uuid) -> Result<()> {
-        let n = diesel::sql_query(
-            r#"
-            SELECT 1
-              FROM appointments
-             WHERE id = $1
-               AND deleted_at IS NULL
-             FOR UPDATE
-        "#,
-        )
-        .bind::<SqlUuid, _>(appointment_id)
-        .execute(conn)
-        .await?;
+    // pub async fn lock(conn: &mut AsyncPgConnection, appointment_id: Uuid) -> Result<()> {
+    //     let n = diesel::sql_query(
+    //         r#"
+    //         SELECT 1
+    //           FROM appointments
+    //          WHERE id = $1
+    //            AND deleted_at IS NULL
+    //          FOR UPDATE
+    //     "#,
+    //     )
+    //     .bind::<SqlUuid, _>(appointment_id)
+    //     .execute(conn)
+    //     .await?;
 
-        if n == 0 {
-            return Err(anyhow!("Appointment not found"));
-        }
-        Ok(())
-    }
+    //     if n == 0 {
+    //         return Err(anyhow!("Appointment not found"));
+    //     }
+    //     Ok(())
+    // }
 
     pub async fn add(
         conn: &mut AsyncPgConnection,

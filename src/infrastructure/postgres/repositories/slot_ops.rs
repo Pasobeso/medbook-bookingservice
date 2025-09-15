@@ -6,7 +6,10 @@ use diesel_async::{AsyncConnection, scoped_futures::ScopedFutureExt};
 use uuid::Uuid;
 
 use crate::{
-    domain::{entities::slots::AddSlotEntity, repositories::slot_ops::SlotOpsRepository},
+    domain::{
+        entities::slots::{AddSlotEntity, EditSlotEntity},
+        repositories::slot_ops::SlotOpsRepository,
+    },
     infrastructure::postgres::{
         postgres_connection::PgPoolSquad,
         repositories::data_access_objects::{slot_ops::SlotOpsDao, slot_viewing::SlotViewingDao},
@@ -51,6 +54,36 @@ impl SlotOpsRepository for SlotOpsPostgres {
             .await?;
 
         Ok(slot_id)
+    }
+
+    async fn edit(
+        &self,
+        slot_id: Uuid,
+        doctor_id: i32,
+        edit_slot_entity: EditSlotEntity,
+    ) -> Result<Uuid> {
+        let mut conn = self.db_pool.get().await?;
+        let effected_slot_id = conn
+            .transaction(|conn| {
+                async move {
+                    let end_time = SlotViewingDao::get_end_time_by_slot_id(conn, slot_id).await?;
+                    let now = chrono::Utc::now().naive_utc();
+
+                    if now > end_time {
+                        return Err(anyhow::anyhow!("Slot is already ended!!!"));
+                    }
+
+                    SlotOpsDao::lock(conn, slot_id).await?;
+
+                    let effected_slot_id =
+                        SlotOpsDao::edit(conn, slot_id, doctor_id, edit_slot_entity).await?;
+                    Ok(effected_slot_id)
+                }
+                .scope_boxed()
+            })
+            .await?;
+
+        Ok(effected_slot_id)
     }
 
     async fn remove(&self, slot_id: Uuid, doctor_id: i32) -> Result<()> {

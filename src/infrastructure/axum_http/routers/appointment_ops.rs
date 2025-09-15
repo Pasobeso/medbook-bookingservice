@@ -39,7 +39,7 @@ pub fn routes(db_pool: Arc<PgPoolSquad>) -> Router {
         .with_state(Arc::new(appointment_ops_use_case))
 }
 
-pub async fn add<T>(
+async fn add<T>(
     State(appointment_ops_use_case): State<Arc<AppointmentOpsUseCase<T>>>,
     Extension(patient_id): Extension<i32>,
     Json(add_appointment_dto): Json<AddAppointmentDto>,
@@ -71,7 +71,7 @@ where
     }
 }
 
-pub async fn edit<T>(
+async fn edit<T>(
     State(appointment_ops_use_case): State<Arc<AppointmentOpsUseCase<T>>>,
     Extension(patient_id): Extension<i32>,
     Path(appointment_id): Path<Uuid>,
@@ -104,7 +104,7 @@ where
     }
 }
 
-pub async fn remove<T>(
+async fn remove<T>(
     State(appointment_ops_use_case): State<Arc<AppointmentOpsUseCase<T>>>,
     Extension(patient_id): Extension<i32>,
     Path(appointment_id): Path<Uuid>,
@@ -117,7 +117,7 @@ where
         .await
     {
         Ok(_) => {
-            let response = format!("Edit appointment success with id: {}", appointment_id);
+            let response = format!("Remove appointment success with id: {}", appointment_id);
             (
                 StatusCode::OK,
                 Json(ApiResponse::<EmptyResponseModel> {

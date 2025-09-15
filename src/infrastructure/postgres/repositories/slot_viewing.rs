@@ -4,7 +4,7 @@ use anyhow::Result;
 use axum::async_trait;
 
 use crate::{
-    domain::{entities::slots::SlotEntity, repositories::{slot_ops::SlotOpsRepository, slot_viewing::SlotViewingRepository}},
+    domain::{entities::slots::SlotEntity, repositories::slot_viewing::SlotViewingRepository},
     infrastructure::postgres::{
         postgres_connection::PgPoolSquad,
         repositories::data_access_objects::slot_viewing::SlotViewingDao,

@@ -22,12 +22,12 @@ where
         }
     }
 
-    async fn get_slots(&self) -> Result<Vec<SlotEntity>> {
+    pub async fn get_slots(&self) -> Result<Vec<SlotEntity>> {
         let schedules = self.slot_viewing_repository.get_slots().await?;
         Ok(schedules)
     }
 
-    async fn get_doctor_slots(&self, doctor_id: i32) -> Result<Vec<SlotEntity>> {
+    pub async fn get_doctor_slots(&self, doctor_id: i32) -> Result<Vec<SlotEntity>> {
         let schedules = self.slot_viewing_repository.get_doctor_slots(doctor_id).await?;
         Ok(schedules)
     }

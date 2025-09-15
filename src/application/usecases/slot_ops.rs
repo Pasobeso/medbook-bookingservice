@@ -4,7 +4,7 @@ use anyhow::Result;
 use uuid::Uuid;
 
 use crate::domain::{
-    repositories::slot_ops::SlotOpsRepository, value_objects::slot_model::AddSlotDto,
+    repositories::slot_ops::SlotOpsRepository, value_objects::slot_model::{AddSlotDto, EditSlotDto},
 };
 
 pub struct SlotOpsUseCase<T>
@@ -24,11 +24,19 @@ where
         }
     }
 
-    pub async fn add(&self, add_slot_dto: AddSlotDto, doctor_id: i32) -> Result<Uuid> {
+    pub async fn add(&self, doctor_id: i32 ,add_slot_dto: AddSlotDto) -> Result<Uuid> {
         let current_time = chrono::Utc::now().naive_utc();
         let add_slot_entity = add_slot_dto.to_entity(doctor_id, current_time);
 
         let slot_id = self.slot_ops_repository.add(add_slot_entity).await?;
+        Ok(slot_id)
+    }
+
+    pub async fn edit(&self, slot_id: Uuid, doctor_id: i32, edit_slot_dto: EditSlotDto) -> Result<Uuid> {
+        let current_time = chrono::Utc::now().naive_utc();
+        let edit_slot_entity = edit_slot_dto.to_entity(current_time);
+
+        let slot_id = self.slot_ops_repository.edit(slot_id, doctor_id,edit_slot_entity).await?;
         Ok(slot_id)
     }
 

@@ -1,6 +1,5 @@
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use serde::Serialize;
 use uuid::Uuid;
 
 use crate::infrastructure::postgres::schema::appointments;

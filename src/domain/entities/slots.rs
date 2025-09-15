@@ -1,10 +1,11 @@
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::infrastructure::postgres::schema::slots;
 
-#[derive(Debug,Clone,Identifiable,Selectable,Queryable)]
+#[derive(Debug,Clone,Identifiable,Selectable,Serialize,Deserialize,Queryable)]
 #[diesel(table_name = slots)]
 pub struct SlotEntity {
     pub id: Uuid,
@@ -31,3 +32,10 @@ pub struct AddSlotEntity {
     pub deleted_at: Option<NaiveDateTime>,
 }
 
+#[derive(Debug, Clone, Queryable, AsChangeset)]
+#[diesel(table_name = slots)]
+pub struct EditSlotEntity {
+    pub max_appointment_count: Option<i32>,
+    pub end_time: Option<NaiveDateTime>,
+    pub updated_at: NaiveDateTime,
+}

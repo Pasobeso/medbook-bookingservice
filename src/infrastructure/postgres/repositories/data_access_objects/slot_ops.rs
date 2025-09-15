@@ -5,6 +5,7 @@ use diesel::{ExpressionMethods, dsl::insert_into};
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
 use uuid::Uuid;
 
+use crate::domain::entities::slots::EditSlotEntity;
 use crate::{domain::entities::slots::AddSlotEntity, infrastructure::postgres::schema::slots};
 
 pub struct SlotOpsDao;
@@ -33,6 +34,19 @@ impl SlotOpsDao {
     pub async fn add(conn: &mut AsyncPgConnection, add_slot_entity: AddSlotEntity) -> Result<Uuid> {
         let result = insert_into(slots::table)
             .values(add_slot_entity)
+            .returning(slots::id)
+            .get_result::<Uuid>(conn)
+            .await?;
+
+        Ok(result)
+    }
+
+    pub async fn edit(conn: &mut AsyncPgConnection, slot_id: Uuid, doctor_id: i32, edit_slot_entity: EditSlotEntity) -> Result<Uuid> {
+        let result = diesel::update(slots::table)
+            .filter(slots::id.eq(slot_id))
+            .filter(slots::doctor_id.eq(doctor_id))
+            .filter(slots::deleted_at.is_null())
+            .set(edit_slot_entity)
             .returning(slots::id)
             .get_result::<Uuid>(conn)
             .await?;
