@@ -33,7 +33,7 @@ jobs:
         uses: dokcer/setup-buildx-action@v3
 
       - name: Log in to ghcr
-        uses: docker/login-action/v3
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
