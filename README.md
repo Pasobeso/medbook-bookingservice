@@ -1,15 +1,18 @@
 # Booking Service Routes
 
-### EmptyResponseModel  
-> คือจะไม่ส่ง data อะไรกลับมาเลย (ข้อมูลที่ส่งกลับมาเป็น None)
+### EmptyResponseModel
+
+> คือจะไม่ส่งง data อะไรกลับมาเลย (ข้อมูลที่ส่งกลับมาเป็น None)
 
 ---
 
-## ต้องการจะเพิ่ม slot เวลาของหมอ  
-- **usecase** : add slot  
+## ต้องการจะเพิ่ม slot เวลาของหมอ
+
+- **usecase** : add slot
 - **Endpoint** : `POST /slot-ops`
 
-**Request**  
+**Request**
+
 ```rust
 pub struct AddSlotDto {
     pub max_appointment_count: i32,
@@ -18,7 +21,8 @@ pub struct AddSlotDto {
 }
 ```
 
-**Response**  
+**Response**
+
 ```json
 {
     "data": EmptyResponseModel,
@@ -28,11 +32,13 @@ pub struct AddSlotDto {
 
 ---
 
-## ต้องการจะแก้ slot เวลาของหมอ  
-- **usecase** : edit slot  
+## ต้องการจะแก้ slot เวลาของหมอ
+
+- **usecase** : edit slot
 - **Endpoint** : `PATCH /slot-ops/:slot_id`
 
-**Request**  
+**Request**
+
 ```rust
 pub struct EditSlotDto {
     pub max_appointment_count: Option<i32>,
@@ -40,7 +46,8 @@ pub struct EditSlotDto {
 }
 ```
 
-**Response**  
+**Response**
+
 ```json
 {
     "data": EmptyResponseModel,
@@ -50,16 +57,19 @@ pub struct EditSlotDto {
 
 ---
 
-## ต้องการจะลบ slot เวลาทิ้ง  
-- **usecase** : remove slot  
+## ต้องการจะลบ slot เวลาทิ้ง
+
+- **usecase** : remove slot
 - **Endpoint** : `DELETE /slot-ops/:slot_id`
 
-**Request**  
+**Request**
+
 ```
 None
 ```
 
-**Response**  
+**Response**
+
 ```json
 {
     "data": EmptyResponseModel,
@@ -69,11 +79,13 @@ None
 
 ---
 
-## คนไข้ต้องการจะจองหมอใน slot ใด ๆ  
-- **usecase** : add appointment  
+## คนไข้ต้องการจะจองหมอใน slot ใด ๆ
+
+- **usecase** : add appointment
 - **Endpoint** : `POST /appointment-ops`
 
-**Request**  
+**Request**
+
 ```rust
 pub struct AddAppointmentDto {
     pub slot_id: Uuid,
@@ -85,7 +97,8 @@ pub struct AddAppointmentDto {
 }
 ```
 
-**Response**  
+**Response**
+
 ```json
 {
     "data": EmptyResponseModel,
@@ -95,11 +108,13 @@ pub struct AddAppointmentDto {
 
 ---
 
-## คนไข้ต้องการจะเลื่อนนัด / แก้ไขรายละเอียดการนัดหมาย  
-- **usecase** : edit appointment  
+## คนไข้ต้องการจะเลื่อนนัด / แก้ไขรายละเอียดการนัดหมาย
+
+- **usecase** : edit appointment
 - **Endpoint** : `PATCH /appointment-ops/:appointment_id`
 
-**Request**  
+**Request**
+
 ```rust
 pub struct EditAppointmentDto {
     pub slot_id: Option<Uuid>,
@@ -111,7 +126,8 @@ pub struct EditAppointmentDto {
 }
 ```
 
-**Response**  
+**Response**
+
 ```json
 {
     "data": EmptyResponseModel,
@@ -121,16 +137,19 @@ pub struct EditAppointmentDto {
 
 ---
 
-## คนไข้ต้องการจะยกเลิกนัด  
-- **usecase** : remove appointment  
+## คนไข้ต้องการจะยกเลิกนัด
+
+- **usecase** : remove appointment
 - **Endpoint** : `DELETE /appointment-ops/:appointment_id`
 
-**Request**  
+**Request**
+
 ```
 None
 ```
 
-**Response**  
+**Response**
+
 ```json
 {
     "data": EmptyResponseModel,
@@ -169,16 +188,19 @@ pub struct ScheduleViewEntity {
 
 ---
 
-## คนไข้ต้องการจะดูตารางนัดหมายตัวเอง  
-- **usecase** : get patient schedules  
+## คนไข้ต้องการจะดูตารางนัดหมายตัวเอง
+
+- **usecase** : get patient schedules
 - **Endpoint** : `GET /schedule-view/patient`
 
-**Request**  
+**Request**
+
 ```
 None
 ```
 
-**Response**  
+**Response**
+
 ```json
 {
     "data": GetPatientScheduleResponseModel,
@@ -188,16 +210,19 @@ None
 
 ---
 
-## หมอต้องการจะดูตารางนัดหมายตัวเอง  
-- **usecase** : get doctor schedules  
+## หมอต้องการจะดูตารางนัดหมายตัวเอง
+
+- **usecase** : get doctor schedules
 - **Endpoint** : `GET /schedule-view/doctor`
 
-**Request**  
+**Request**
+
 ```
 None
 ```
 
-**Response**  
+**Response**
+
 ```json
 {
     "data": GetDoctorScheduleResponseModel,
@@ -207,7 +232,7 @@ None
 
 ---
 
-## SlotEntity และ Response Models  
+## SlotEntity และ Response Models
 
 ```rust
 pub struct SlotEntity {
@@ -235,16 +260,19 @@ pub struct GetDoctorSlotsResponseModel {
 
 ---
 
-## คนไข้ต้องการจะดู slot ว่ามี slot ไหนว่างให้กดจองบ้าง หรือ หมอต้องการจะดูว่ามีหมอคนไหนจอง slot ไหนบ้าง  
-- **usecase** : get slots  
+## คนไข้ต้องการจะดู slot ว่ามี slot ไหนว่างให้กดจองบ้าง หรือ หมอต้องการจะดูว่ามีหมอคนไหนจอง slot ไหนบ้าง
+
+- **usecase** : get slots
 - **Endpoint** : `GET /slot-view`
 
-**Request**  
+**Request**
+
 ```
 None
 ```
 
-**Response**  
+**Response**
+
 ```json
 {
     "data": GetSlotsResponseModel,
@@ -254,16 +282,19 @@ None
 
 ---
 
-## หมอต้องการจะดู slot ของตัวเองว่าได้สร้าง slot ไหนไว้บ้าง  
-- **usecase** : get doctor slots  
+## หมอต้องการจะดู slot ของตัวเองว่าได้สร้าง slot ไหนไว้บ้าง
+
+- **usecase** : get doctor slots
 - **Endpoint** : `GET /slot-view/view-my-slots`
 
-**Request**  
+**Request**
+
 ```
 None
 ```
 
-**Response**  
+**Response**
+
 ```json
 {
     "data": GetDoctorSlotsResponseModel,
