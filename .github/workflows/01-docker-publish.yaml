@@ -14,7 +14,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github_repository_owner }}/medbook-bookingservice
+  IMAGE_NAME: ${{ github.repository_owner }}/medbook-bookingservice
 
 jobs:
   build-and-push:
