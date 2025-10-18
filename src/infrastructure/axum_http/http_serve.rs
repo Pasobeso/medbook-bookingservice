@@ -31,6 +31,10 @@ pub async fn start(config: Arc<DotEnvyConfig>, db_pool: Arc<PgPoolSquad>) -> Res
             routers::appointment_ops::routes(Arc::clone(&db_pool)),
         )
         .nest(
+            "/appointment-ledger",
+            routers::appointment_ledger::routes(Arc::clone(&db_pool)),
+        )
+        .nest(
             "/schedule-view/doctor",
             routers::doctor_schedule_viewing::routes(Arc::clone(&db_pool)),
         )

@@ -8,7 +8,6 @@ use crate::infrastructure::postgres::schema::appointments;
 pub struct AppointmentViewingDao;
 
 impl AppointmentViewingDao {
-
     pub async fn get_slot_id_by_appointment_id(
         conn: &mut AsyncPgConnection,
         appointment_id: Uuid,
@@ -16,8 +15,22 @@ impl AppointmentViewingDao {
         let result = appointments::table
             .filter(appointments::deleted_at.is_null())
             .filter(appointments::id.eq(appointment_id))
-            .select(appointments::slot_id)   
-            .first::<Uuid>(conn)                        
+            .select(appointments::slot_id)
+            .first::<Uuid>(conn)
+            .await?;
+
+        Ok(result)
+    }
+
+    pub async fn get_appointment_status_by_appointment_id(
+        conn: &mut AsyncPgConnection,
+        appointment_id: Uuid,
+    ) -> Result<String> {
+        let result = appointments::table
+            .filter(appointments::deleted_at.is_null())
+            .filter(appointments::id.eq(appointment_id))
+            .select(appointments::status)
+            .first::<String>(conn)
             .await?;
 
         Ok(result)
