@@ -2,7 +2,10 @@ use std::sync::Arc;
 
 use medbook_bookingservice::{
     config::config_loader,
-    infrastructure::{axum_http::http_serve::start, postgres::postgres_connection},
+    infrastructure::{
+        axum_http::http_serve::start,
+        postgres::{postgres_connection, postgres_migration},
+    },
 };
 use tracing::{error, info};
 
@@ -32,6 +35,13 @@ async fn main() {
         };
 
     info!("Postgres connection has been established");
+
+    if let Err(e) = postgres_migration::run_migrations_blocking(&dotenvy_env.database.url).await {
+        error!("Failed to run database migrations: {e}");
+        std::process::exit(1);
+    }
+
+    info!("Database migrations have been applied successfully");
 
     start(Arc::new(dotenvy_env), Arc::new(postgres_pool))
         .await
