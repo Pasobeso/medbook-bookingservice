@@ -29,7 +29,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
-COPY --from=builder /app/target/release/medbook-bookingservice /usr/local/bin/medbook-bookingservice
+COPY --from=builder /app/target/release/medbook-bookingservice /usr/local/bin/server
 COPY --from=builder /app/src/infrastructure/postgres/migrations /app/migrations
 
 RUN useradd --system --home-dir /app --create-home app && chown -R app:app /app
@@ -37,4 +37,4 @@ USER app
 
 ENV PORT=3000 RUST_LOG=info RUST_BACKTRACE=1
 EXPOSE 3000
-ENTRYPOINT ["/usr/local/bin/medbook-bookingservice"]
+ENTRYPOINT ["/usr/local/bin/server"]
