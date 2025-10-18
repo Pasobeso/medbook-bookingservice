@@ -25,7 +25,6 @@ pub async fn establish_connection(database_url: &str) -> Result<PgPoolSquad> {
 
     // พิสูจน์ว่าเชื่อมได้จริงโดยยืมคอนเนกชันแล้วยิง SELECT 1
     let mut conn = pool.get().await?; // ถ้าต่อไม่ได้ จะ error ตรงนี้
-    sql_query("SELECT 1").execute(&mut conn).await?; // ถ้า DB ไม่ตอบ จะ error ตรงนี้ด้วย
     drop(conn);
 
     Ok(pool)

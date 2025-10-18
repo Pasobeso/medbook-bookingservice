@@ -1,0 +1,16 @@
+# this compose purpose is only for testing backend , so it will only have dependencies that this code is needed!
+version: "3.9"
+
+services:
+  db:
+    container_name: medbook-bookingservice-db-dev
+    image: bitnami/postgresql:latest
+    ports:
+      - 5433:5432
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - medbook_bookingservice_db_data_dev:/bitnami/postgresql
+
+volumes:
+  medbook_bookingservice_db_data_dev:
