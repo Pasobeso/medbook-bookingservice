@@ -30,7 +30,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 COPY --from=builder /app/target/release/medbook-bookingservice /usr/local/bin/server
-COPY --from=builder /app/src/infrastructure/postgres/migrations /app/migrations
 
 RUN useradd --system --home-dir /app --create-home app && chown -R app:app /app
 USER app
