@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use anyhow::Result;
-use axum::async_trait;
 use diesel_async::{AsyncConnection, scoped_futures::ScopedFutureExt};
 use uuid::Uuid;
 
@@ -31,7 +30,6 @@ impl AppointmentOpsPostgres {
     }
 }
 
-#[async_trait]
 impl AppointmentOpsRepository for AppointmentOpsPostgres {
     async fn add(&self, add_appointment_entity: AddAppointmentEntity) -> Result<Uuid> {
         let mut conn = self.db_pool.get().await?;

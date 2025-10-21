@@ -1,9 +1,10 @@
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 use crate::domain::entities::slots::{AddSlotEntity, EditSlotEntity, SlotEntity};
 
-#[derive(Debug,Clone,Serialize,Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct AddSlotDto {
     pub max_appointment_count: i32,
     pub start_time: NaiveDateTime,
@@ -25,7 +26,7 @@ impl AddSlotDto {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, ToSchema)]
 pub struct EditSlotDto {
     pub max_appointment_count: Option<i32>,
     pub end_time: Option<NaiveDateTime>,
@@ -41,12 +42,12 @@ impl EditSlotDto {
     }
 }
 
-#[derive(Debug,Clone,Serialize,Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct GetSlotsResponseModel {
     pub slots: Vec<SlotEntity>,
 }
 
-#[derive(Debug,Clone,Serialize,Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GetDoctorSlotsResponseModel {
     pub slots: Vec<SlotEntity>,
 }

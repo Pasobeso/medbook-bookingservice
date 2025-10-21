@@ -1,10 +1,14 @@
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 use uuid::Uuid;
 
-use crate::domain::{entities::appointments::{AddAppointmentEntity, EditAppointmentEntity}, value_objects::appointment_status::AppointmentStatus};
+use crate::domain::{
+    entities::appointments::{AddAppointmentEntity, EditAppointmentEntity},
+    value_objects::appointment_status::AppointmentStatus,
+};
 
-#[derive(Debug,Clone,Serialize,Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct AddAppointmentDto {
     pub slot_id: Uuid,
     pub patient_abnormal_symptom: String,
@@ -32,7 +36,7 @@ impl AddAppointmentDto {
     }
 }
 
-#[derive(Debug,Clone,Serialize,Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct EditAppointmentDto {
     pub slot_id: Option<Uuid>,
     pub patient_abnormal_symptom: Option<String>,

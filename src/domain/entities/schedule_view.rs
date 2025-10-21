@@ -1,9 +1,10 @@
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Queryable)]
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, ToSchema)]
 #[diesel(table_name = appointments)]
 pub struct ScheduleViewEntity {
     pub id: Uuid,
