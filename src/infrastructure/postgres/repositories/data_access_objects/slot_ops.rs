@@ -41,7 +41,12 @@ impl SlotOpsDao {
         Ok(result)
     }
 
-    pub async fn edit(conn: &mut AsyncPgConnection, slot_id: Uuid, doctor_id: i32, edit_slot_entity: EditSlotEntity) -> Result<Uuid> {
+    pub async fn edit(
+        conn: &mut AsyncPgConnection,
+        slot_id: Uuid,
+        doctor_id: i32,
+        edit_slot_entity: EditSlotEntity,
+    ) -> Result<Uuid> {
         let result = diesel::update(slots::table)
             .filter(slots::id.eq(slot_id))
             .filter(slots::doctor_id.eq(doctor_id))

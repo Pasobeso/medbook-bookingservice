@@ -30,5 +30,6 @@ impl Stage {
             "Production" => Ok(Stage::Production),
             _ => Err(anyhow::anyhow!("Invalid stage")),
         }
-    } 
+    }
 }
+

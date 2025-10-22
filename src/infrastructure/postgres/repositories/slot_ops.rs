@@ -46,6 +46,11 @@ impl SlotOpsRepository for SlotOpsPostgres {
                         return Err(anyhow::anyhow!("Slot time is overlapping!!!"));
                     }
 
+                    let now = chrono::Utc::now().naive_utc();
+                    if now > add_slot_entity.start_time {
+                        return Err(anyhow::anyhow!("You cant go to the past"));
+                    }
+
                     let slot_id = SlotOpsDao::add(conn, add_slot_entity).await?;
                     Ok(slot_id)
                 }
