@@ -8,6 +8,7 @@ use axum::{
     response::IntoResponse,
     routing::{delete, patch, post},
 };
+use utoipa_axum::router::OpenApiRouter;
 use uuid::Uuid;
 
 use crate::{
@@ -27,6 +28,7 @@ use crate::{
     },
 };
 
+#[deprecated]
 pub fn routes(db_pool: Arc<PgPoolSquad>) -> Router {
     let appointment_ops_repository = AppointmentOpsPostgres::new(db_pool);
     let appointment_ops_use_case = AppointmentOpsUseCase::new(Arc::new(appointment_ops_repository));
@@ -39,6 +41,32 @@ pub fn routes(db_pool: Arc<PgPoolSquad>) -> Router {
         .with_state(Arc::new(appointment_ops_use_case))
 }
 
+/// Defines routes with OpenAPI specs. Should be used over `routes()` where possible.
+pub fn routes_with_openapi(db_pool: Arc<PgPoolSquad>) -> OpenApiRouter {
+    let appointment_ops_repository = AppointmentOpsPostgres::new(db_pool);
+    let appointment_ops_use_case = AppointmentOpsUseCase::new(Arc::new(appointment_ops_repository));
+
+    OpenApiRouter::new().nest(
+        "/appointment-ops",
+        OpenApiRouter::new()
+            .routes(utoipa_axum::routes!(add))
+            .routes(utoipa_axum::routes!(edit))
+            .routes(utoipa_axum::routes!(remove))
+            .route_layer(middleware::from_fn(patients_authorization))
+            .with_state(Arc::new(appointment_ops_use_case)),
+    )
+}
+
+/// Adds a new appointment for the authenticated patient.
+#[utoipa::path(
+    post,
+    path = "/",
+    tags = ["Appointment Operations"],
+    request_body = AddAppointmentDto,
+    responses(
+        (status = 200, description = "Appointment added successfully", body = ApiResponse<EmptyResponseModel>)
+    )
+)]
 async fn add<T>(
     State(appointment_ops_use_case): State<Arc<AppointmentOpsUseCase<T>>>,
     Extension(patient_id): Extension<i32>,
@@ -71,6 +99,19 @@ where
     }
 }
 
+/// Edits an existing appointment by ID.
+#[utoipa::path(
+    patch,
+    path = "/{appointment_id}",
+    tags = ["Appointment Operations"],
+    params(
+        ("appointment_id" = Uuid, Path, description = "Appointment ID to edit")
+    ),
+    request_body = EditAppointmentDto,
+    responses(
+        (status = 200, description = "Appointment edited successfully", body = ApiResponse<EmptyResponseModel>)
+    )
+)]
 async fn edit<T>(
     State(appointment_ops_use_case): State<Arc<AppointmentOpsUseCase<T>>>,
     Extension(patient_id): Extension<i32>,
@@ -104,6 +145,18 @@ where
     }
 }
 
+/// Removes an existing appointment by ID.
+#[utoipa::path(
+    delete,
+    path = "/{appointment_id}",
+    tags = ["Appointment Operations"],
+    params(
+        ("appointment_id" = Uuid, Path, description = "Appointment ID to remove")
+    ),
+    responses(
+        (status = 200, description = "Appointment removed successfully", body = ApiResponse<EmptyResponseModel>)
+    )
+)]
 async fn remove<T>(
     State(appointment_ops_use_case): State<Arc<AppointmentOpsUseCase<T>>>,
     Extension(patient_id): Extension<i32>,

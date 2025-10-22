@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use anyhow::{Result, anyhow};
-use axum::async_trait;
 use diesel_async::{AsyncConnection, scoped_futures::ScopedFutureExt};
 use uuid::Uuid;
 
@@ -26,7 +25,6 @@ impl SlotOpsPostgres {
     }
 }
 
-#[async_trait]
 impl SlotOpsRepository for SlotOpsPostgres {
     async fn add(&self, add_slot_entity: AddSlotEntity) -> Result<Uuid> {
         let mut conn = self.db_pool.get().await?;

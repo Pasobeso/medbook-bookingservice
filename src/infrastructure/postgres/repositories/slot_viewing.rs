@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use anyhow::Result;
-use axum::async_trait;
 
 use crate::{
     domain::{entities::slots::SlotEntity, repositories::slot_viewing::SlotViewingRepository},
@@ -21,12 +20,11 @@ impl SlotViewingPostgres {
     }
 }
 
-#[async_trait]
 impl SlotViewingRepository for SlotViewingPostgres {
     async fn get_slots(&self) -> Result<Vec<SlotEntity>> {
         let mut conn = self.db_pool.get().await?;
         let slots = SlotViewingDao::get_slots(&mut conn).await?;
-        
+
         Ok(slots)
     }
 

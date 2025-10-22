@@ -1,13 +1,14 @@
 use std::sync::Arc;
 
 use axum::{
+    Json, Router,
     extract::{Path, State},
     http::StatusCode,
     middleware,
     response::IntoResponse,
     routing::patch,
-    Json, Router,
 };
+use utoipa_axum::router::OpenApiRouter;
 use uuid::Uuid;
 
 use crate::{
@@ -28,6 +29,7 @@ use crate::{
     },
 };
 
+#[deprecated]
 pub fn routes(db_pool: Arc<PgPoolSquad>) -> Router {
     let appointment_ledger_repository = AppointmentLedgerPostgres::new(db_pool);
     let appointment_ledger_use_case =
@@ -44,6 +46,35 @@ pub fn routes(db_pool: Arc<PgPoolSquad>) -> Router {
         .with_state(Arc::new(appointment_ledger_use_case))
 }
 
+/// Defines routes with OpenAPI specs. Should be used over `routes()` where possible.
+pub fn routes_with_openapi(db_pool: Arc<PgPoolSquad>) -> OpenApiRouter {
+    let appointment_ledger_repository = AppointmentLedgerPostgres::new(db_pool);
+    let appointment_ledger_use_case =
+        AppointmentLedgerUseCase::new(Arc::new(appointment_ledger_repository));
+
+    OpenApiRouter::new().nest(
+        "/appointment-ledger",
+        OpenApiRouter::new()
+            .routes(utoipa_axum::routes!(to_ready))
+            .routes(utoipa_axum::routes!(to_waiting_for_prescription))
+            .routes(utoipa_axum::routes!(to_completed))
+            .route_layer(middleware::from_fn(doctors_authorization))
+            .with_state(Arc::new(appointment_ledger_use_case)),
+    )
+}
+
+/// Marks an appointment as **Ready**.
+#[utoipa::path(
+    patch,
+    path = "/to-ready/{appointment_id}",
+    tags = ["Appointment Ledger"],
+    params(
+        ("appointment_id" = Uuid, Path, description = "Appointment ID to update to Ready")
+    ),
+    responses(
+        (status = 200, description = "Appointment status updated to Ready successfully", body = ApiResponse<EmptyResponseModel>)
+    )
+)]
 pub async fn to_ready<T>(
     State(appointment_ledger_use_case): State<Arc<AppointmentLedgerUseCase<T>>>,
     Path(appointment_id): Path<Uuid>,
@@ -78,6 +109,19 @@ where
         ),
     }
 }
+
+/// Marks an appointment as **Waiting for Prescription**.
+#[utoipa::path(
+    patch,
+    path = "/to-waiting-for-prescription/{appointment_id}",
+    tags = ["Appointment Ledger"],
+    params(
+        ("appointment_id" = Uuid, Path, description = "Appointment ID to update to WaitingForPrescription")
+    ),
+    responses(
+        (status = 200, description = "Appointment status updated to WaitingForPrescription successfully", body = ApiResponse<EmptyResponseModel>)
+    )
+)]
 
 pub async fn to_waiting_for_prescription<T>(
     State(appointment_ledger_use_case): State<Arc<AppointmentLedgerUseCase<T>>>,
@@ -114,6 +158,18 @@ where
     }
 }
 
+/// Marks an appointment as **Completed**.
+#[utoipa::path(
+    patch,
+    path = "/to-completed/{appointment_id}",
+    tags = ["Appointment Ledger"],
+    params(
+        ("appointment_id" = Uuid, Path, description = "Appointment ID to update to Completed")
+    ),
+    responses(
+        (status = 200, description = "Appointment status updated to Completed successfully", body = ApiResponse<EmptyResponseModel>)
+    )
+)]
 pub async fn to_completed<T>(
     State(appointment_ledger_use_case): State<Arc<AppointmentLedgerUseCase<T>>>,
     Path(appointment_id): Path<Uuid>,

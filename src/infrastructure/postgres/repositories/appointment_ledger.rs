@@ -1,8 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::Result;
-use axum::async_trait;
-use diesel_async::{scoped_futures::ScopedFutureExt, AsyncConnection};
+use diesel_async::{AsyncConnection, scoped_futures::ScopedFutureExt};
 use uuid::Uuid;
 
 use crate::{
@@ -28,7 +27,6 @@ impl AppointmentLedgerPostgres {
     }
 }
 
-#[async_trait]
 impl AppointmentLedgerRepository for AppointmentLedgerPostgres {
     async fn to_ready(&self, appointment_id: Uuid) -> Result<Uuid> {
         let mut conn = self.db_pool.get().await?;

@@ -8,6 +8,7 @@ use axum::{
     response::IntoResponse,
     routing::{delete, patch, post},
 };
+use utoipa_axum::router::OpenApiRouter;
 use uuid::Uuid;
 
 use crate::{
@@ -25,6 +26,7 @@ use crate::{
     },
 };
 
+#[deprecated]
 pub fn routes(db_pool: Arc<PgPoolSquad>) -> Router {
     let slot_ops_repository = SlotOpsPostgres::new(db_pool);
     let slot_ops_use_case = SlotOpsUseCase::new(Arc::new(slot_ops_repository));
@@ -37,6 +39,32 @@ pub fn routes(db_pool: Arc<PgPoolSquad>) -> Router {
         .with_state(Arc::new(slot_ops_use_case))
 }
 
+/// Defines routes with OpenAPI specs. Should be used over `routes()` where possible.
+pub fn routes_with_openapi(db_pool: Arc<PgPoolSquad>) -> OpenApiRouter {
+    let slot_ops_repository = SlotOpsPostgres::new(db_pool);
+    let slot_ops_use_case = SlotOpsUseCase::new(Arc::new(slot_ops_repository));
+
+    OpenApiRouter::new().nest(
+        "/slot-ops",
+        OpenApiRouter::new()
+            .routes(utoipa_axum::routes!(add))
+            .routes(utoipa_axum::routes!(edit))
+            .routes(utoipa_axum::routes!(remove))
+            .route_layer(middleware::from_fn(doctors_authorization))
+            .with_state(Arc::new(slot_ops_use_case)),
+    )
+}
+
+/// Adds a new doctor slot.
+#[utoipa::path(
+    post,
+    path = "/",
+    tags = ["Slot Operations"],
+    request_body = AddSlotDto,
+    responses(
+        (status = 200, description = "Slot added successfully", body = ApiResponse<EmptyResponseModel>)
+    )
+)]
 pub async fn add<T>(
     State(slot_ops_use_case): State<Arc<SlotOpsUseCase<T>>>,
     Extension(doctor_id): Extension<i32>,
@@ -66,6 +94,19 @@ where
     }
 }
 
+/// Edits an existing doctor slot by ID.
+#[utoipa::path(
+    patch,
+    path = "/{slot_id}",
+    tags = ["Slot Operations"],
+    params(
+        ("slot_id" = Uuid, Path, description = "Slot ID to edit")
+    ),
+    request_body = EditSlotDto,
+    responses(
+        (status = 200, description = "Slot edited successfully", body = ApiResponse<EmptyResponseModel>)
+    )
+)]
 pub async fn edit<T>(
     State(slot_ops_use_case): State<Arc<SlotOpsUseCase<T>>>,
     Extension(doctor_id): Extension<i32>,
@@ -99,6 +140,18 @@ where
     }
 }
 
+/// Removes an existing doctor slot by ID.
+#[utoipa::path(
+    delete,
+    path = "/{slot_id}",
+    tags = ["Slot Operations"],
+    params(
+        ("slot_id" = Uuid, Path, description = "Slot ID to remove")
+    ),
+    responses(
+        (status = 200, description = "Slot removed successfully", body = ApiResponse<EmptyResponseModel>)
+    )
+)]
 pub async fn remove<T>(
     State(slot_ops_use_case): State<Arc<SlotOpsUseCase<T>>>,
     Extension(doctor_id): Extension<i32>,
