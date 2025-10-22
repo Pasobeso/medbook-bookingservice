@@ -47,7 +47,7 @@ pub async fn start(config: Arc<DotEnvyConfig>, db_pool: Arc<PgPoolSquad>) -> Res
 
     let mut openapi = routes.get_openapi().clone();
     openapi.info = InfoBuilder::new()
-        .title("MedBook UserService API")
+        .title("MedBook BookingService API")
         .version("1.0.0")
         .build();
     let swagger_ui = swagger::create_swagger_ui(openapi)?;
