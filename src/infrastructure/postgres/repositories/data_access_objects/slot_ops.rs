@@ -64,7 +64,6 @@ impl SlotOpsDao {
             .filter(slots::id.eq(slot_id))
             .filter(slots::doctor_id.eq(doctor_id))
             .filter(slots::deleted_at.is_null())
-            .filter(slots::start_time.gt(chrono::Utc::now().naive_utc()))
             .set((slots::deleted_at.eq(chrono::Utc::now().naive_utc()),))
             .execute(conn)
             .await?;

@@ -100,6 +100,12 @@ impl SlotOpsRepository for SlotOpsPostgres {
                     return Err(anyhow!("Patient already booked this slot!"));
                 }
 
+                let end_time = SlotViewingDao::get_end_time_by_slot_id(conn, slot_id).await?;
+                let now = chrono::Utc::now().naive_utc();
+
+                if now > end_time {
+                    return Err(anyhow::anyhow!("Slot is already ended!!!"));
+                }
                 SlotOpsDao::remove(conn, slot_id, doctor_id).await?;
                 Ok(())
             }
