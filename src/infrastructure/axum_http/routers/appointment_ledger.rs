@@ -82,10 +82,7 @@ pub async fn to_ready<T>(
 where
     T: AppointmentLedgerRepository + Send + Sync,
 {
-    match appointment_ledger_use_case
-        .to_completed(appointment_id)
-        .await
-    {
+    match appointment_ledger_use_case.to_ready(appointment_id).await {
         Ok(appointment_id) => {
             let response = format!(
                 "Appointment id: {} is now {:?}",
