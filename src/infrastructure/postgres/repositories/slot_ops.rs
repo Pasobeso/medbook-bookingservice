@@ -45,7 +45,7 @@ impl SlotOpsRepository for SlotOpsPostgres {
                     }
 
                     let now = chrono::Utc::now().naive_utc();
-                    if now > add_slot_entity.start_time {
+                    if now > add_slot_entity.end_time {
                         return Err(anyhow::anyhow!("You cant go to the past"));
                     }
 
